@@ -1,0 +1,43 @@
+@use './components/index.scss' as *;
+
+html,
+body {
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+button {
+  /* Remove default background */
+  background: none;
+  background-color: transparent; /* Ensure transparency */
+
+  /* Remove default border */
+  border: none;
+
+  /* Remove default padding and margin */
+  padding: 0;
+  margin: 0;
+
+  /* Remove default outline on focus (for accessibility, consider adding a custom focus style) */
+  outline: none;
+
+  /* Reset font styles if needed */
+  font-family: inherit; /* Inherit font from parent */
+  font-size: inherit;
+  color: inherit; /* Inherit text color */
+
+  /* Remove default text decoration (like underlines from links styled as buttons) */
+  text-decoration: none;
+
+  /* Remove default cursor style if desired */
+  cursor: pointer; /* Set a pointer cursor for interactivity */
+
+  /* Reset box-shadow if present */
+  box-shadow: none;
+
+  /* For webkit browsers (like Chrome, Safari), remove default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none; /* For Firefox */
+  appearance: none;
+}
