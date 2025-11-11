@@ -1,12 +1,14 @@
-import { getCountries } from 'assets/js/api';
+import { getCountries, searchGeo } from 'assets/js/api';
 import { useEffect, useState } from 'react';
 import DropdownInput from '~/components/DropdownInput/DropdownInput';
-import type { Country } from '~/types/ApiTypes';
+import type { Country, GeoEntity } from '~/types/ApiTypes';
 
 export function Welcome() {
   const [countries, setCountries] = useState<Country[]>([]);
+  const [places, setPlaces] = useState<GeoEntity[]>([]);
   const [error, setError] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedPlaces, setSelectedPlaces] = useState<Country | GeoEntity | null>(null);
+  const [inputText, setInputText] = useState('');
 
   async function fetchWithRetry(url: Promise<Response>, retries = 2, delay = 1000) {
     try {
@@ -35,6 +37,15 @@ export function Welcome() {
     });
   }, []);
 
+  useEffect(() => {
+    fetchWithRetry(searchGeo(inputText)).then(async (resp) => {
+      const data = await resp.json();
+      return setPlaces(Object.values(data));
+    });
+  }, [inputText]);
+
+  console.log(places);
+
   return (
     <main>
       <div>
@@ -48,8 +59,11 @@ export function Welcome() {
             <DropdownInput
               countries={countries}
               placeholder='Форма пошуку турів'
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
+              selectedPlaces={selectedPlaces}
+              setSelectedPlaces={setSelectedPlaces}
+              inputText={inputText}
+              setInputText={setInputText}
+              places={places}
             />
           )}
         </div>

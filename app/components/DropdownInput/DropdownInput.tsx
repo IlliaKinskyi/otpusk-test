@@ -1,41 +1,43 @@
 import React, { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useOutsideClick } from '~/hooks/useOutsideClick';
-import type { Country } from '~/types/ApiTypes';
+import type { Country, GeoEntity } from '~/types/ApiTypes';
 import CloseIconSvg from './assets/CloseIconSvg';
+import CityIconSvg from './assets/CityIconSvg';
 
 function DropdownInput({
   countries,
   placeholder,
-  selectedCountry,
-  setSelectedCountry,
+  selectedPlaces,
+  setSelectedPlaces,
+  inputText,
+  setInputText,
+  places,
 }: {
   countries: Country[];
   placeholder?: string;
-  selectedCountry: Country | null;
-  setSelectedCountry: React.Dispatch<React.SetStateAction<Country | null>>;
+  selectedPlaces: Country | GeoEntity | null;
+  setSelectedPlaces: React.Dispatch<React.SetStateAction<Country | GeoEntity | null>>;
+  inputText: string;
+  setInputText: React.Dispatch<React.SetStateAction<string>>;
+  places: GeoEntity[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputText, setInputText] = useState(placeholder);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const dropdownRef = useOutsideClick(() => {
     setIsOpen(false);
   });
 
-  const handleSelect = (country: Country) => {
-    setSelectedCountry(country);
+  const handleSelect = (country: Country | GeoEntity) => {
+    setSelectedPlaces(country);
     setInputText(country.name);
     setIsOpen(false);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(selectedCountry?.name);
+    console.log(selectedPlaces);
   };
-
-  useEffect(() => {
-    if (inputText?.length === 0 && !isOpen) setInputText(placeholder);
-  }, [inputText, isOpen]);
 
   return (
     <form className='dropdown' onSubmit={(event) => handleSubmit(event)}>
@@ -45,6 +47,7 @@ function DropdownInput({
           type='text'
           className='dropdown-header__input'
           value={inputText}
+          placeholder={placeholder}
           onChange={(event) => setInputText(event.target.value)}
           onClick={() => {
             if (inputText === placeholder) setInputText('');
@@ -59,24 +62,44 @@ function DropdownInput({
           onClick={() => {
             if (inputRef.current) inputRef.current.focus();
             setInputText('');
-            setSelectedCountry(null);
+            setSelectedPlaces(null);
             setIsOpen(true);
           }}>
           <CloseIconSvg />
         </button>
       </div>
-      {/*<div className='dropdown-header' onClick={() => setIsOpen(!isOpen)}>
-        {placeholder}
-      </div>*/}
       <div ref={dropdownRef}>
         {isOpen && (
           <ul className='dropdown-menu'>
-            {countries.map((country) => (
-              <li key={country.id} className='dropdown-item' onClick={() => handleSelect(country)}>
-                <img src={country.flag} className='dropdown-item__image' />
-                <span>{country.name}</span>
-              </li>
-            ))}
+            {inputText.length === 0 ||
+            (selectedPlaces && 'type' in selectedPlaces && selectedPlaces.type === 'country')
+              ? countries.map((country) => (
+                  <li
+                    key={country.id}
+                    className='dropdown-item'
+                    onClick={() =>
+                      handleSelect({
+                        ...country,
+                        type: 'country',
+                      })
+                    }>
+                    <img src={country.flag} className='dropdown-item__image' />
+                    <span>{country.name}</span>
+                  </li>
+                ))
+              : places.map((place) => (
+                  <li key={place.id} className='dropdown-item' onClick={() => handleSelect(place)}>
+                    {place.type === 'city' ? (
+                      <CityIconSvg />
+                    ) : (
+                      <img
+                        src={place.type === 'country' ? place.flag : place.img}
+                        className='dropdown-item__image'
+                      />
+                    )}
+                    <span>{place.name}</span>
+                  </li>
+                ))}
           </ul>
         )}
       </div>
