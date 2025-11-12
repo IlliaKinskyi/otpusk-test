@@ -2,6 +2,7 @@ import { getCountries, searchGeo } from 'assets/js/api';
 import { useEffect, useState } from 'react';
 import DropdownInput from '~/components/DropdownInput/DropdownInput';
 import SearchResults from '~/components/SearchResults/SearchResults';
+import { SearchResultsContextProvider } from '~/context/SearchResultsContext';
 import type { Country, GeoEntity } from '~/types/ApiTypes';
 import type { searchResponseType } from '~/types/Types';
 import { fetchWithRetry } from '~/utils/utils';
@@ -32,30 +33,30 @@ export function Welcome() {
   }, [inputText]);
 
   return (
-    <main>
-      <div>
-        <header>
-          <div>Header</div>
-        </header>
+    <SearchResultsContextProvider>
+      <main>
         <div>
-          {error.length > 0 ? (
-            error
-          ) : (
-            <DropdownInput
-              countries={countries}
-              placeholder='Форма пошуку турів'
-              selectedPlaces={selectedPlaces}
-              setSelectedPlaces={setSelectedPlaces}
-              inputText={inputText}
-              setInputText={setInputText}
-              places={places}
-              setSearchResponse={setSearchResponse}
-            />
-          )}
+          <div>
+            {error.length > 0 ? (
+              error
+            ) : (
+              <DropdownInput
+                countries={countries}
+                placeholder='Форма пошуку турів'
+                selectedPlaces={selectedPlaces}
+                setSelectedPlaces={setSelectedPlaces}
+                inputText={inputText}
+                setInputText={setInputText}
+                places={places}
+                searchResponse={searchResponse}
+                setSearchResponse={setSearchResponse}
+              />
+            )}
 
-          <SearchResults searchResponse={searchResponse} setSearchResponse={setSearchResponse} />
+            <SearchResults searchResponse={searchResponse} setSearchResponse={setSearchResponse} />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </SearchResultsContextProvider>
   );
 }

@@ -1,0 +1,11 @@
+.search-results {
+  display: flex;
+  margin-top: 10px;
+
+  &__spinner {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

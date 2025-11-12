@@ -17,6 +17,7 @@ function DropdownInput({
   inputText,
   setInputText,
   places,
+  searchResponse,
   setSearchResponse,
 }: {
   countries: Country[];
@@ -26,6 +27,7 @@ function DropdownInput({
   inputText: string;
   setInputText: React.Dispatch<React.SetStateAction<string>>;
   places: GeoEntity[];
+  searchResponse: searchResponseType;
   setSearchResponse: React.Dispatch<React.SetStateAction<searchResponseType>>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +46,10 @@ function DropdownInput({
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    setSearchResponse({
+      ...searchResponse,
+      waitUntil: null,
+    });
     event.preventDefault();
     fetchWithRetry(startSearchPrices(selectedPlaces?.id), setError, setIsLoading)
       .then((resp) => {

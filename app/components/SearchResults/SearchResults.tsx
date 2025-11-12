@@ -1,8 +1,10 @@
 import { getSearchPrices } from 'assets/js/api';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import type { searchResponseType } from '~/types/Types';
 import Spinner from '../Spinner/Spinner';
 import { fetchWithRetry } from '~/utils/utils';
+import TextError from '../TextError/TextError';
+import { SearchResultsContext } from '~/context/SearchResultsContext';
 
 export default function SearchResults({
   searchResponse,
@@ -14,6 +16,13 @@ export default function SearchResults({
   const [isTimeForRequest, setIsTimeForRequest] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const context = useContext(SearchResultsContext);
+
+  if (!context) {
+    throw new Error('MyComponent must be used within a MyContextProvider');
+  }
+
+  const { searchResults, setSearchResults } = context;
 
   const checkIsTimeForRequest = () => {
     if (searchResponse.waitUntil && new Date(searchResponse.waitUntil) < new Date()) {
@@ -23,6 +32,7 @@ export default function SearchResults({
 
   useEffect(() => {
     if (searchResponse.waitUntil) {
+      setError('');
       setIsLoading(true);
       checkIsTimeForRequest();
       const intervalId = setInterval(checkIsTimeForRequest, 1000);
@@ -34,17 +44,33 @@ export default function SearchResults({
     if (isTimeForRequest) {
       fetchWithRetry(getSearchPrices(searchResponse.token), setError, setIsLoading)
         .then((resp) => {
+          if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
+          return resp.json();
+        })
+        .then((data) => setSearchResults(Object.values(data.prices)))
+        .finally(() => {
+          setIsTimeForRequest(false);
+          setIsLoading(false);
           setSearchResponse({
             ...searchResponse,
             waitUntil: null,
           });
-          if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
-          return resp.json();
-        })
-        .then((data) => console.log(data));
+        });
     }
   }, [isTimeForRequest]);
 
-  console.log(isTimeForRequest);
-  return <div>{isLoading && <Spinner />}</div>;
+  console.log(searchResults);
+
+  return (
+    <div className='search-results'>
+      {isLoading ? (
+        <div className='search-results__spinner'>
+          <Spinner />
+        </div>
+      ) : (
+        searchResults?.length === 0 && <span>За вашим запитом турів не знайдено</span>
+      )}
+      {error.length > 0 && <TextError error={error} />}
+    </div>
+  );
 }
