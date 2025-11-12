@@ -1,8 +1,13 @@
-import React, { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import React, { useRef, useState, type FormEvent } from 'react';
 import { useOutsideClick } from '~/hooks/useOutsideClick';
 import type { Country, GeoEntity } from '~/types/ApiTypes';
 import CloseIconSvg from './assets/CloseIconSvg';
 import CityIconSvg from './assets/CityIconSvg';
+import { startSearchPrices } from 'assets/js/api';
+import type { searchResponseType } from '~/types/Types';
+import { fetchWithRetry } from '~/utils/utils';
+import TextError from '../TextError/TextError';
+import Spinner from '../Spinner/Spinner';
 
 function DropdownInput({
   countries,
@@ -12,6 +17,7 @@ function DropdownInput({
   inputText,
   setInputText,
   places,
+  setSearchResponse,
 }: {
   countries: Country[];
   placeholder?: string;
@@ -20,9 +26,12 @@ function DropdownInput({
   inputText: string;
   setInputText: React.Dispatch<React.SetStateAction<string>>;
   places: GeoEntity[];
+  setSearchResponse: React.Dispatch<React.SetStateAction<searchResponseType>>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const dropdownRef = useOutsideClick(() => {
     setIsOpen(false);
@@ -36,7 +45,12 @@ function DropdownInput({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(selectedPlaces);
+    fetchWithRetry(startSearchPrices(selectedPlaces?.id), setError, setIsLoading)
+      .then((resp) => {
+        if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
+        return resp.json();
+      })
+      .then((data) => setSearchResponse(data));
   };
 
   return (
@@ -104,9 +118,11 @@ function DropdownInput({
         )}
       </div>
 
-      <button type='submit' className='dropdown-button'>
-        Знайти
+      <button type='submit' className='dropdown-button' disabled={!selectedPlaces || isLoading}>
+        {isLoading ? <Spinner /> : 'Знайти'}
       </button>
+
+      {error.length > 0 && <TextError error={error} />}
     </form>
   );
 }

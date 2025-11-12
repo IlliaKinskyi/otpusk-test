@@ -1,0 +1,6 @@
+@use '../../index' as *;
+
+.text-error {
+  margin-top: 10px;
+  color: $primary-red;
+}
