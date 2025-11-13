@@ -3,7 +3,7 @@ import { useOutsideClick } from '~/hooks/useOutsideClick';
 import type { Country, GeoEntity } from '~/types/ApiTypes';
 import CloseIconSvg from './assets/CloseIconSvg';
 import CityIconSvg from './assets/CityIconSvg';
-import { getHotels, startSearchPrices } from 'assets/js/api';
+import { getHotels, startSearchPrices, stopSearchPrices } from 'assets/js/api';
 import type { searchResponseType } from '~/types/Types';
 import { fetchWithRetry } from '~/utils/utils';
 import TextError from '../TextError/TextError';
@@ -78,7 +78,19 @@ function DropdownInput({
       });
   }, [selectedPlaces]);
 
+  const stopSearch = async () => {
+    await fetchWithRetry(stopSearchPrices(searchResponse.token), setError, setIsLoading).finally(
+      () =>
+        setSearchResponse({
+          token: '',
+          waitUntil: null,
+        }),
+    );
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    if (searchResponse.token) stopSearch();
+    setError('');
     setSearchResponse({
       ...searchResponse,
       waitUntil: null,
@@ -108,7 +120,10 @@ function DropdownInput({
           className='dropdown-header__input'
           value={inputText}
           placeholder={placeholder}
-          onChange={(event) => setInputText(event.target.value)}
+          onChange={(event) => {
+            setInputText(event.target.value);
+            setSelectedPlaces(null);
+          }}
           onClick={() => {
             if (inputText === placeholder) setInputText('');
             setIsOpen(true);
@@ -131,8 +146,7 @@ function DropdownInput({
       <div ref={dropdownRef}>
         {isOpen && (
           <ul className='dropdown-menu'>
-            {inputText.length === 0 ||
-            (selectedPlaces && 'type' in selectedPlaces && selectedPlaces.type === 'country')
+            {inputText.length === 0 || (selectedPlaces && selectedPlaces.type === 'country')
               ? countries.map((country) => (
                   <li
                     key={country.id}

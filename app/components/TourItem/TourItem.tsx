@@ -22,6 +22,7 @@ export default function TourItem({
 }) {
   return (
     <div className='offer'>
+      <title>{item.hotel?.name}</title>
       <a href={`/`} className='offer-link'>
         На головну
       </a>

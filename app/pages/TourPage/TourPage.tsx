@@ -8,7 +8,6 @@ import { fetchWithRetry } from '~/utils/utils';
 export function TourPage() {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [price, setPrice] = useState(null);
   const [hotel, setHotel] = useState(null);
 

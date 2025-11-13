@@ -1,9 +1,7 @@
-import { getCountries, getHotels, searchGeo } from 'assets/js/api';
+import { getCountries, searchGeo } from 'assets/js/api';
 import { useEffect, useState } from 'react';
 import DropdownInput from '~/components/DropdownInput/DropdownInput';
 import SearchResults from '~/components/SearchResults/SearchResults';
-import { HotelsContextProvider } from '~/context/HotelsContext';
-import { SearchResultsContextProvider } from '~/context/SearchResultsContext';
 import { StoreContextProvider } from '~/context/StoreContext';
 import type { Country, GeoEntity } from '~/types/ApiTypes';
 import type { searchResponseType } from '~/types/Types';

@@ -31,7 +31,7 @@ export default function SearchResults({
   }
 
   const { searchResults, setSearchResults } = resultsContext;
-  const { hotels, setHotels } = hotelContext;
+  const { hotels } = hotelContext;
   const { offers, setOffers } = offersContext;
 
   const checkIsTimeForRequest = () => {
@@ -91,12 +91,9 @@ export default function SearchResults({
             ...searchResponse,
             waitUntil: null,
           });
-          test();
         });
     }
   }, [isTimeForRequest]);
-
-  const test = () => {};
 
   return (
     <div className='search-results'>
