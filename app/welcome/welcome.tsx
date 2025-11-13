@@ -1,8 +1,10 @@
-import { getCountries, searchGeo } from 'assets/js/api';
+import { getCountries, getHotels, searchGeo } from 'assets/js/api';
 import { useEffect, useState } from 'react';
 import DropdownInput from '~/components/DropdownInput/DropdownInput';
 import SearchResults from '~/components/SearchResults/SearchResults';
+import { HotelsContextProvider } from '~/context/HotelsContext';
 import { SearchResultsContextProvider } from '~/context/SearchResultsContext';
+import { StoreContextProvider } from '~/context/StoreContext';
 import type { Country, GeoEntity } from '~/types/ApiTypes';
 import type { searchResponseType } from '~/types/Types';
 import { fetchWithRetry } from '~/utils/utils';
@@ -11,7 +13,7 @@ export function Welcome() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<GeoEntity[]>([]);
   const [error, setError] = useState('');
-  const [selectedPlaces, setSelectedPlaces] = useState<Country | GeoEntity | null>(null);
+  const [selectedPlaces, setSelectedPlaces] = useState<GeoEntity | null>(null);
   const [inputText, setInputText] = useState('');
   const [searchResponse, setSearchResponse] = useState<searchResponseType>({
     token: '',
@@ -26,14 +28,15 @@ export function Welcome() {
   }, []);
 
   useEffect(() => {
-    fetchWithRetry(searchGeo(inputText), setError).then(async (resp) => {
-      const data = await resp.json();
-      return setPlaces(Object.values(data));
-    });
+    if (inputText.length > 0)
+      fetchWithRetry(searchGeo(inputText), setError).then(async (resp) => {
+        const data = await resp.json();
+        return setPlaces(Object.values(data));
+      });
   }, [inputText]);
 
   return (
-    <SearchResultsContextProvider>
+    <StoreContextProvider>
       <main>
         <div>
           <div>
@@ -57,6 +60,6 @@ export function Welcome() {
           </div>
         </div>
       </main>
-    </SearchResultsContextProvider>
+    </StoreContextProvider>
   );
 }

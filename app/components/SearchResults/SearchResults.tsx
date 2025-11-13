@@ -5,6 +5,10 @@ import Spinner from '../Spinner/Spinner';
 import { fetchWithRetry } from '~/utils/utils';
 import TextError from '../TextError/TextError';
 import { SearchResultsContext } from '~/context/SearchResultsContext';
+import Offers from '../Offers/Offers';
+import { OffersContext } from '~/context/OffersContext';
+import { HotelsContext } from '~/context/HotelsContext';
+import type { Hotel, PriceOffer } from '~/types/ApiTypes';
 
 export default function SearchResults({
   searchResponse,
@@ -16,13 +20,19 @@ export default function SearchResults({
   const [isTimeForRequest, setIsTimeForRequest] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const context = useContext(SearchResultsContext);
+  const resultsContext = useContext(SearchResultsContext);
+  const hotelContext = useContext(HotelsContext);
+  const offersContext = useContext(OffersContext);
 
-  if (!context) {
-    throw new Error('MyComponent must be used within a MyContextProvider');
+  if (!resultsContext || !hotelContext || !offersContext) {
+    throw new Error(
+      `Context must be used within a ${!SearchResultsContext ? 'SearchResultsContext' : !offersContext ? 'OffersContext' : 'HotelsContext'}`,
+    );
   }
 
-  const { searchResults, setSearchResults } = context;
+  const { searchResults, setSearchResults } = resultsContext;
+  const { hotels, setHotels } = hotelContext;
+  const { offers, setOffers } = offersContext;
 
   const checkIsTimeForRequest = () => {
     if (searchResponse.waitUntil && new Date(searchResponse.waitUntil) < new Date()) {
@@ -47,7 +57,33 @@ export default function SearchResults({
           if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
           return resp.json();
         })
-        .then((data) => setSearchResults(Object.values(data.prices)))
+        .then((data) => {
+          const dataArray: PriceOffer[] = Object.values(data.prices);
+          const allHotels: Hotel[] = [];
+          setSearchResults(dataArray);
+
+          hotels.map((item) => {
+            item.hotels?.map((hotel) => {
+              allHotels.push(hotel);
+            });
+          });
+
+          dataArray.map((offer) => {
+            if (!offers.map((item) => item.priceOffer?.hotelID).includes(offer.hotelID)) {
+              allHotels.map((hotel) => {
+                if (+(offer.hotelID ?? 0) === hotel.id) {
+                  setOffers((prevOffers) => [
+                    ...prevOffers,
+                    {
+                      priceOffer: offer,
+                      hotel: hotel,
+                    },
+                  ]);
+                }
+              });
+            }
+          });
+        })
         .finally(() => {
           setIsTimeForRequest(false);
           setIsLoading(false);
@@ -55,11 +91,12 @@ export default function SearchResults({
             ...searchResponse,
             waitUntil: null,
           });
+          test();
         });
     }
   }, [isTimeForRequest]);
 
-  console.log(searchResults);
+  const test = () => {};
 
   return (
     <div className='search-results'>
@@ -71,6 +108,8 @@ export default function SearchResults({
         searchResults?.length === 0 && <span>За вашим запитом турів не знайдено</span>
       )}
       {error.length > 0 && <TextError error={error} />}
+
+      <Offers />
     </div>
   );
 }

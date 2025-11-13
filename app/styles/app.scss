@@ -1,10 +1,12 @@
 @use './components/index.scss' as *;
+@use './index' as *;
 
 html,
 body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+  background-color: $background-grey;
 }
 
 button {
