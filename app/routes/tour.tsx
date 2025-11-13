@@ -1,10 +1,10 @@
 import type { Route } from './+types/home';
-import { HomePage } from '../pages/HomePage/HomePage';
+import { TourPage } from '../pages/TourPage/TourPage';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Пошук туру' }, { name: 'description', content: 'Пошук туру' }];
 }
 
-export default function Home() {
-  return <HomePage />;
+export default function Tour() {
+  return <TourPage />;
 }

@@ -105,7 +105,9 @@ export default function SearchResults({
           <Spinner />
         </div>
       ) : (
-        searchResults?.length === 0 && <span>За вашим запитом турів не знайдено</span>
+        searchResults?.length === 0 && (
+          <span className='search-results__empty'>За вашим запитом турів не знайдено</span>
+        )
       )}
       {error.length > 0 && <TextError error={error} />}
 

@@ -9,7 +9,7 @@ import type { Country, GeoEntity } from '~/types/ApiTypes';
 import type { searchResponseType } from '~/types/Types';
 import { fetchWithRetry } from '~/utils/utils';
 
-export function Welcome() {
+export function HomePage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<GeoEntity[]>([]);
   const [error, setError] = useState('');

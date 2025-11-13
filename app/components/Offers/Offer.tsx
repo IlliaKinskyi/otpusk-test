@@ -5,7 +5,7 @@ import type { OfferType } from '~/context/OffersContext';
 export default function Offer({ item }: { item: OfferType }) {
   return (
     <div className='offer'>
-      <img src={item.hotel?.img} className='offer-image' />
+      {item.hotel?.img && <img src={item.hotel.img} className='offer-image' loading='lazy' />}
       <span className='offer-title'>{item.hotel?.name}</span>
       <span className='offer-address'>
         {item.hotel?.countryName}, {item.hotel?.cityName}
@@ -22,7 +22,9 @@ export default function Offer({ item }: { item: OfferType }) {
         {item.priceOffer?.currency}
       </span>
 
-      <a href='' className='offer-link'>
+      <a
+        href={`/tour?priceId=${item.priceOffer?.id}&hotelId=${item.priceOffer?.hotelID}`}
+        className='offer-link'>
         Відкрити ціну
       </a>
     </div>
