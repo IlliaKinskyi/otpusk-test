@@ -11,6 +11,7 @@ import ParkingIconSvg from './assets/ParkingIconSvg';
 import TennisIconSvg from './assets/TennisIconSvg';
 import AquaParkIconSvg from './assets/AquaParkIconSvg';
 import CalendarIconSvg from './assets/CalendarIconSvg';
+import { Link } from 'react-router';
 
 export default function TourItem({
   item,
@@ -23,9 +24,9 @@ export default function TourItem({
   return (
     <div className='offer'>
       <title>{item.hotel?.name}</title>
-      <a href={`/`} className='offer-link'>
+      <Link to={`/`} className='offer-link'>
         На головну
-      </a>
+      </Link>
 
       <span className='offer-title'>{item.hotel?.name}</span>
       <div className='offer-address__wrapper'>

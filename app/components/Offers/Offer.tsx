@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React from 'react';
+import { Link } from 'react-router';
 import type { OfferType } from '~/context/OffersContext';
 
 export default function Offer({ item }: { item: OfferType }) {
@@ -22,11 +23,11 @@ export default function Offer({ item }: { item: OfferType }) {
         {item.priceOffer?.currency}
       </span>
 
-      <a
-        href={`/tour?priceId=${item.priceOffer?.id}&hotelId=${item.priceOffer?.hotelID}`}
+      <Link
+        to={`/tour?priceId=${item.priceOffer?.id}&hotelId=${item.priceOffer?.hotelID}`}
         className='offer-link'>
         Відкрити ціну
-      </a>
+      </Link>
     </div>
   );
 }
